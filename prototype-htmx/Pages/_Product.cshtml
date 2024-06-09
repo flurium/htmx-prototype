@@ -1,0 +1,12 @@
+﻿@model htmx.Models.Product
+
+
+<div class="product-card">
+    @if (!string.IsNullOrEmpty(Model.PreviewImage))
+    {
+        <img src="@Model.PreviewImage" alt="@Model.Name" />
+    }
+    <h3>@Model.Name</h3>
+    <p class="description">@Model.Description</p>
+    <p class="price">$@Model.Price</p>
+</div>

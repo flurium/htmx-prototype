@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "prototype-htmx", "prototype-htmx\prototype-htmx.csproj", "{C6BA7FB6-1352-47F5-8F7D-3607DD18AE6D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "prototype-htmx", "prototype-htmx\prototype-htmx.csproj", "{C6BA7FB6-1352-47F5-8F7D-3607DD18AE6D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
