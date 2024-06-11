@@ -29,6 +29,8 @@ body {
     padding: 16px;
     margin-top: 16px;
     margin-bottom: 16px;
+    margin-left: 40px;
+    margin-right: 40px;
     width: 300px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     background-color: #fff;

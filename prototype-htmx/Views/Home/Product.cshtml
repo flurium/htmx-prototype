@@ -1,22 +1,17 @@
-﻿@using prototype_htmx.Controllers;
-@model htmx.Models.Product
+﻿@model htmx.Models.Product
 
 
-@{
-    Layout = null;
-}
-
-<div class="product-card">
-    @if (!string.IsNullOrEmpty(Model.PreviewImage))
+    @if (!string.IsNullOrEmpty(@Model.PreviewImage))
     {
         <img src="@Model.PreviewImage" alt="@Model.Name" />
     }
     <h3>@Model.Name</h3>
     <p class="description">@Model.Description</p>
     <p class="price">$@Model.Price</p>
-    <button class="btn-danger"
-            hx-delete="@Url.Action("Delete","Home", new {Id = @Model.Id})"
-            hx-target="#productsHere">
+    <button 
+        class="btn-danger w-full"
+        hx-delete="@Url.Action("Delete", "Home", new { Id = @Model.Id })"
+        hx-target="#productsHere">
         Delete
     </button>
-</div>
+

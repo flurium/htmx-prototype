@@ -1,18 +1,9 @@
-﻿@model prototype_htmx.Models.LoadMoreModel
-@using prototype_htmx.Controllers;
-@{
-    ViewData["Title"] = "Home page";
-}
-
-<div class="card m-5">
-    <div class="card-header bg-primary text-white">
-        <h2></h2>
-    </div>
-    <div class="card-body">
-        <form id="productAdd"
+﻿
+ <form id="productAdd"
               hx-post="/add-product" hx-target="#productsHere"
               hx-on:htmx:before-request="disableForm('#productAdd')"
               hx-on:htmx:after-request="clearForm('#productAdd')"
+              hx-target="#productsHere"
               hx-trigger="submit">
 
             <div class="form mb-3">
@@ -38,29 +29,3 @@
                 Add
             </button>
         </form>
-        <div id="productsHere" class="mt-5 row row-cols-1 row-cols-md-3 g-4 flex-fill">
-            @await Html.PartialAsync("_Products", Model)
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script>
-        function clearForm(selector) {
-            const form = document.querySelector(selector);
-            form.reset();
-
-            const submit = form.querySelector("[type='submit']")
-            submit.disabled = false;
-        }
-
-        function disableForm(selector) {
-            console.log("disable")
-            const form = document.querySelector(selector);
-            const submit = form.querySelector("[type='submit']")
-            console.log(submit)
-            submit.disabled = true;
-        }
-    </script>
-    <script src="https://unpkg.com/htmx.org@1.7.0"></script>
-}
