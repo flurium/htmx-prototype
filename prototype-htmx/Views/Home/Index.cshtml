@@ -1,0 +1,85 @@
+﻿@model List<htmx.Models.Product>
+@using prototype_htmx.Controllers;
+@{
+    ViewData["Title"] = "Home page";
+}
+<div class="card m-5">
+    <div class="card-header bg-primary text-white">
+        <h2></h2>
+    </div>
+    <div class="card-body">
+        <form id="productAdd"
+              hx-post="/add-product" hx-target="#productsHere"
+              hx-on:htmx:before-request="disableForm('#productAdd')"
+              hx-on:htmx:after-request="clearForm('#productAdd')"
+              hx-target="#productsHere"
+              hx-trigger="submit">
+
+            <div class="form mb-3">
+
+                <label for="productName">Product name</label>
+                <input required 
+                       type="text"
+                       name="productName"
+                       id="productName"
+                       class="form-control" placeholder="tomatos">
+
+                <label for="productPrice" class="form-label">Enter a price:</label>
+                <input required type="number" id="productPrice" name="productPrice" class="form-control" placeholder="Enter price here">
+                
+                <label for="productImage" class="form-label">Enter an image link:</label>
+                <input required type="text" id="productImage" name="productImage" class="form-control" placeholder="Enter link here">
+
+                <label for="productDescription" class="form-label">Enter product description:</label>
+                <textarea required id="productDescription" name="productDescription" class="form-control" rows="5" placeholder="Enter text here"></textarea>
+                
+            </div>
+            <button type="submit" class="btn btn-outline-primary btn-lg w-full">
+                Add
+            </button>
+        </form>
+        <div id="productsHere" class="mt-5 row row-cols-1 row-cols-md-3 g-4 flex-fill">
+            @foreach(var product in Model)
+            {
+                <div class="product-card">
+                    @if (!string.IsNullOrEmpty(@product.PreviewImage))
+                    {
+                        <img src="@product.PreviewImage" alt="@product.Name" />
+                    }
+                    <h3>@product.Name</h3>
+                    <p class="description">@product.Description</p>
+                    <p class="price">$@product.Price</p>
+                    <button 
+                        class="btn-danger w-full"
+                        hx-delete="@Url.Action("Delete","Home", new {Id = @product.Id})"
+                        hx-target="#productsHere">
+                        Delete
+                    </button>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function clearForm(selector) {
+            const form = document.querySelector(selector);
+            form.reset();
+
+            const submit = form.querySelector("[type='submit']")
+            submit.disabled = false;
+        }
+
+        function disableForm(selector) {
+            console.log("disable")
+            const form = document.querySelector(selector);
+            const submit = form.querySelector("[type='submit']")
+            console.log(submit)
+            submit.disabled = true;
+        }
+    </script>
+}
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
