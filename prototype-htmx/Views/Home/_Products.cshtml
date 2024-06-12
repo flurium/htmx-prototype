@@ -1,5 +1,7 @@
 ﻿@model prototype_htmx.Models.LoadMoreModel
-
+@{
+    Layout = null;
+}
 @foreach (var product in Model.Products)
 {
     <div class="product-card"
@@ -11,8 +13,9 @@
                  hx-swap="afterend"
              </text>
          }>
+
          @await Html.PartialAsync("Product", product)
     </div>
-}
 
+}
 

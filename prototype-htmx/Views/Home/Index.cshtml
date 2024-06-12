@@ -4,7 +4,8 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="card m-5">
+
+ <div class="card m-5">
     <div class="card-header bg-primary text-white">
         <h2></h2>
     </div>
@@ -13,6 +14,7 @@
               hx-post="/add-product" hx-target="#productsHere"
               hx-on:htmx:before-request="disableForm('#productAdd')"
               hx-on:htmx:after-request="clearForm('#productAdd')"
+              hx-swap="innerHTML"
               hx-trigger="submit">
 
             <div class="form mb-3">
@@ -39,9 +41,16 @@
             </button>
         </form>
         <div id="productsHere" class="mt-5 row row-cols-1 row-cols-md-3 g-4 flex-fill">
-            @await Html.PartialAsync("_Products", Model)
+            @await Html.PartialAsync("_Products", @Model)
         </div>
     </div>
+</div>
+
+
+<div id="modals-here"
+     class="modal modal-blur fade"
+     aria-hidden="true"
+     tabindex="-1">
 </div>
 
 @section Scripts {
@@ -61,6 +70,13 @@
             console.log(submit)
             submit.disabled = true;
         }
+            document.body.addEventListener('htmx:afterSwap', function (evt) {
+                if (evt.detail.target.id === 'modals-here') {
+                    var modalElement = document.getElementById('modals-here');
+                    var modal = new bootstrap.Modal(modalElement);
+                    modal.show();
+                }
+            });
     </script>
     <script src="https://unpkg.com/htmx.org@1.7.0"></script>
 }

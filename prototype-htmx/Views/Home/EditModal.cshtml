@@ -1,0 +1,44 @@
+﻿@model htmx.Models.Product
+
+    <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Edit</h5>
+            </div>
+            <div class="modal-body">
+                <label for="editName">Product name</label>
+                <input hx-post="@Url.Action("EditName", "Home", new { Id = @Model.Id, editName = this})"
+                   hx-trigger="keyup" hx-interval="500"
+                   class="form-control" hx-swap="none" required type="text"
+                   name="editName" id="editName"  value="@Model.Name">
+
+                <label for="editPrice" class="form-label">Enter a price:</label>
+                <input required type="number"
+                   id="editPrice" name="editPrice"
+                   hx-post="@Url.Action("EditPrice", "Home", new { Id = @Model.Id, editPrice = this })"
+                   hx-trigger="keyup" hx-interval="500"
+                   class="form-control" placeholder="Enter price here" hx-swap="none" value="@Model.Price">
+
+                <label for="editImage" class="form-label">Enter an image link:</label>
+                <input required type="text" 
+                   id="editImage" name="editImage"
+                   hx-post="@Url.Action("EditImage", "Home", new { Id = @Model.Id, editImage = this })"
+                   hx-trigger="keyup" hx-interval="500"
+                   class="form-control" placeholder="Enter link here" hx-swap="none" value="@Model.PreviewImage">
+
+                <label for="editDescription" class="form-label">Enter product description:</label>
+                <textarea required id="editDescription"
+                    name="editDescription" class="form-control"
+                    hx-post="@Url.Action("EditDescription", "Home", new { Id = @Model.Id, editDescription = this})"
+                    hx-trigger="keyup" hx-interval="500" hx-swap="none"
+                    rows="5" placeholder="Enter text here">@Model.Description
+                </textarea>
+
+            </div>
+            <div class="modal-footer">
+            <button type="button" hx-get="@Url.Action("CloseModal", "Home")" hx-trigger="click" hx-target="#productsHere" hx-swap="innerHTML" data-bs-dismiss="modal" class="btn btn-secondary">
+                Close
+            </button>
+            </div>
+          </div>
+    </div>
