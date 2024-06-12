@@ -89,8 +89,8 @@ namespace prototype_htmx.Controllers
         [HttpPost]
         public async Task<IActionResult> EditName(string Id, string editName)
         {
-            var product = db.Products.FirstOrDefault(p=>p.Id == Id);
-            if(product == null) return View("Error");
+            var product = db.Products.FirstOrDefault(p => p.Id == Id);
+            if (product == null) return View("Error");
             product.Name = editName;
             db.Products.Update(product);
             db.SaveChanges();
@@ -108,6 +108,7 @@ namespace prototype_htmx.Controllers
             db.SaveChanges();
             return Ok();
         }
+
         [HttpPost]
         public async Task<IActionResult> EditImage(string Id, string editImage)
         {
@@ -132,6 +133,7 @@ namespace prototype_htmx.Controllers
 
             return Ok();
         }
+
         [HttpGet]
         public async Task<IActionResult> Modal(string Id)
         {
@@ -139,13 +141,22 @@ namespace prototype_htmx.Controllers
             if (product == null) return View("Error");
             return PartialView("EditModal", product);
         }
+
         [HttpGet]
         public IActionResult CloseModal()
         {
             var products = db.Products.OrderBy(p => p.Id).Take(6).ToList();
             bool hasMore = db.Products.Count() > products.Count;
             var model = new LoadMoreModel { Products = products, HasMore = hasMore };
-            return View("_Products",model);
+            return View("_Products", model);
+        }
+
+        [HttpGet]
+        public IActionResult Details(string Id)
+        {
+            var product = db.Products.FirstOrDefault(p => p.Id == Id);
+            if (product == null) return View("Error");
+            return View("Details", product);
         }
     }
 }

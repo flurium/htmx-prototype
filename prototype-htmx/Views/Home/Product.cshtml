@@ -1,30 +1,27 @@
 ﻿@model htmx.Models.Product
-@{
-    Layout = null;
-}
 
-
+<a href="@Url.Action("Details", "Home", new { Id = @Model.Id })">
     @if (!string.IsNullOrEmpty(@Model.PreviewImage))
     {
-    <img class="image" src="@Model.PreviewImage" alt="@Model.Name" />
+        <img class="image" src="@Model.PreviewImage" alt="@Model.Name" />
     }
     <h3 class="name">@Model.Name</h3>
     <p class="description">@Model.Description</p>
     <p class="price">$@Model.Price</p>
+    </a>
     <button
         class="btn-danger w-full"
         hx-delete="@Url.Action("Delete", "Home", new { Id = @Model.Id })"
         hx-target="productsHere"
-        hx-swap="innerHtml">
+        hx-swap="innerHTML">
         Delete
     </button>
     <button
         hx-get="@Url.Action("Modal", "Home", new { Id = @Model.Id })"
         hx-target="#modals-here"
-            hx-trigger="click"
-            class="btn btn-primary" hx-swap="innerHTML">
+        hx-trigger="click"
+        class="btn btn-primary"
+        hx-swap="innerHTML">
         Edit
     </button>
 
-
-    

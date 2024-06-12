@@ -1,9 +1,8 @@
-﻿
- <form id="productAdd"
+﻿ <form id="productAdd"
               hx-post="/add-product" hx-target="#productsHere"
               hx-on:htmx:before-request="disableForm('#productAdd')"
               hx-on:htmx:after-request="clearForm('#productAdd')"
-              hx-target="#productsHere"
+              hx-swap="innerHTML"
               hx-trigger="submit">
 
             <div class="form mb-3">

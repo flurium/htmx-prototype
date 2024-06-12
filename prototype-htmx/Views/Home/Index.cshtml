@@ -10,36 +10,7 @@
         <h2></h2>
     </div>
     <div class="card-body">
-        <form id="productAdd"
-              hx-post="/add-product" hx-target="#productsHere"
-              hx-on:htmx:before-request="disableForm('#productAdd')"
-              hx-on:htmx:after-request="clearForm('#productAdd')"
-              hx-swap="innerHTML"
-              hx-trigger="submit">
-
-            <div class="form mb-3">
-
-                <label for="productName">Product name</label>
-                <input required 
-                       type="text"
-                       name="productName"
-                       id="productName"
-                       class="form-control" placeholder="tomatos">
-
-                <label for="productPrice" class="form-label">Enter a price:</label>
-                <input required type="number" id="productPrice" name="productPrice" class="form-control" placeholder="Enter price here">
-                
-                <label for="productImage" class="form-label">Enter an image link:</label>
-                <input required type="text" id="productImage" name="productImage" class="form-control" placeholder="Enter link here">
-
-                <label for="productDescription" class="form-label">Enter product description:</label>
-                <textarea required id="productDescription" name="productDescription" class="form-control" rows="5" placeholder="Enter text here"></textarea>
-                
-            </div>
-            <button type="submit" class="btn btn-outline-primary btn-lg w-full">
-                Add
-            </button>
-        </form>
+        @await Html.PartialAsync("_CreateForm")
         <div id="productsHere" class="mt-5 row row-cols-1 row-cols-md-3 g-4 flex-fill">
             @await Html.PartialAsync("_Products", @Model)
         </div>
