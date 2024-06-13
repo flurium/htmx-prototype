@@ -12,6 +12,6 @@ namespace htmx_prototype.Models
 
         public double Price { get; set; } = 0;
         public string Description { get; set; } = string.Empty;
-        public string? PreviewImage { get; set; }
+        public byte[] PreviewImage { get; set; }
     }
 }
