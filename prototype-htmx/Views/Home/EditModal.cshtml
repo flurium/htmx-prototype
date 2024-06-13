@@ -7,14 +7,15 @@
             </div>
             <div class="modal-body">
                 <label for="editName">Product name</label>
-                <input hx-post="@Url.Action("EditName", "Home", new { Id = @Model.Id, editName = this})"
+                <input required type="text"
+                   name="editName" id="editName" value="@Model.Name"
+                   hx-post="@Url.Action("EditName", "Home", new { Id = @Model.Id, editName = this})"
                    hx-trigger="keyup" hx-interval="500"
-                   class="form-control" hx-swap="none" required type="text"
-                   name="editName" id="editName"  value="@Model.Name">
+                   class="form-control" hx-swap="none">
 
                 <label for="editPrice" class="form-label">Enter a price:</label>
                 <input required type="number"
-                   id="editPrice" name="editPrice"
+                   name="editPrice" id="editPrice" 
                    hx-post="@Url.Action("EditPrice", "Home", new { Id = @Model.Id, editPrice = this })"
                    hx-trigger="keyup" hx-interval="500"
                    class="form-control" placeholder="Enter price here" hx-swap="none" value="@Model.Price">

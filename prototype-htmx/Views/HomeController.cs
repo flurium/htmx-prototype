@@ -8,14 +8,6 @@ using System.Linq;
 
 namespace prototype_htmx.Controllers
 {
-    public class ProductFormModel
-    {
-        public string productName { get; set; } = string.Empty;
-        public double productPrice { get; set; }
-        public string productDescription { get; set; } = string.Empty;
-        public string productImage { get; set; } = string.Empty;
-    }
-
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -35,7 +27,8 @@ namespace prototype_htmx.Controllers
             return View(model);
         }
 
-        [HttpPost("/add-product")]
+        public record class ProductFormModel(string productName, double productPrice, string productDescription, string productImage);
+        [HttpPost]
         public async Task<IActionResult> Add([FromForm] ProductFormModel product)
         {
             var newProduct = new Product()
@@ -80,8 +73,8 @@ namespace prototype_htmx.Controllers
                              .Take(6)
                              .ToList();
 
-            string lastId = products.LastOrDefault()?.Id;
-            bool hasMore = !string.IsNullOrEmpty(lastId) && db.Products.Any(p => string.Compare(p.Id, lastId) > 0);
+            var last = products.LastOrDefault();
+            bool hasMore = (last!=null) && db.Products.Any(p => string.Compare(p.Id, last.Id) > 0);
 
             return PartialView("_Products", new LoadMoreModel { Products = products, HasMore = hasMore });
         }

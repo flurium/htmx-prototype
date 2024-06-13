@@ -1,5 +1,6 @@
 ﻿ <form id="productAdd"
-              hx-post="/add-product" hx-target="#productsHere"
+              hx-post="@Url.Action("Add","Home")"
+              hx-target="#productsHere"
               hx-on:htmx:before-request="disableForm('#productAdd')"
               hx-on:htmx:after-request="clearForm('#productAdd')"
               hx-swap="innerHTML"
@@ -24,7 +25,7 @@
                 <textarea required id="productDescription" name="productDescription" class="form-control" rows="5" placeholder="Enter text here"></textarea>
                 
             </div>
-            <button type="submit" class="btn btn-outline-primary btn-lg w-full">
+            <button type="submit" class="btn btn-outline-primary btn-lg w-100">
                 Add
             </button>
-        </form>
+</form>
