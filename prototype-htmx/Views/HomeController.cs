@@ -1,10 +1,7 @@
 ﻿using htmx.Models;
-using Htmx;
 using htmx_prototype.Data;
 using Microsoft.AspNetCore.Mvc;
 using prototype_htmx.Models;
-using System.Diagnostics;
-using System.Linq;
 
 namespace prototype_htmx.Controllers
 {
@@ -74,7 +71,7 @@ namespace prototype_htmx.Controllers
                              .ToList();
 
             var last = products.LastOrDefault();
-            bool hasMore = (last!=null) && db.Products.Any(p => string.Compare(p.Id, last.Id) > 0);
+            bool hasMore = (last != null) && db.Products.Any(p => string.Compare(p.Id, last.Id) > 0);
 
             return PartialView("_Products", new LoadMoreModel { Products = products, HasMore = hasMore });
         }
