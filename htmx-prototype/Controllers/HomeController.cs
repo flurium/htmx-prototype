@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting.Internal;
 using System;
 using System.IO;
+using System.Linq;
+using System.Net;
 
 namespace htmx_prototype.Controllers
 {
@@ -19,11 +21,9 @@ namespace htmx_prototype.Controllers
             this.environment = environment;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var products = db.Products.OrderBy(p => p.Name.ToLower()).Take(6).ToList();
-            bool hasMore = db.Products.Count() > products.Count;
-            var model = new LoadMoreModel { Products = products, HasMore = hasMore };
+            var model = await ProductsModel();
             return View(model);
         }
 
@@ -32,29 +32,19 @@ namespace htmx_prototype.Controllers
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] ProductFormModel product)
         {
-            string productImageName = Guid.NewGuid().ToString()+System.IO.Path.GetExtension(product.productImage.FileName);
-
-            var filePath = Path.Combine(environment.WebRootPath, "Images", productImageName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-              await product.productImage.CopyToAsync(stream);
-            }
-
+            
             var newProduct = new Product()
             {
                 Name = product.productName,
                 Description = product.productDescription,
                 Price = product.productPrice,
-                PreviewImage = "./Images/"+productImageName
+                PreviewImage = await SaveImage(product.productImage)
             };
 
             db.Products.Add(newProduct);
             db.SaveChanges();
 
-            var products = db.Products.OrderBy(p => p.Name.ToLower()).Take(6).ToList();
-            bool hasMore = db.Products.Count() > products.Count;
-            var model = new LoadMoreModel { Products = products, HasMore = hasMore };
+            var model = await ProductsModel();
             return View("_Products", model);
         }
 
@@ -67,30 +57,15 @@ namespace htmx_prototype.Controllers
 
             db.Products.Remove(product);
             db.SaveChanges();
-            try
-            {
-                if (System.IO.File.Exists(environment.WebRootPath + product.PreviewImage))
-                {
-                    System.IO.File.Delete(environment.WebRootPath + product.PreviewImage);
-                }
-                else
-                {
-                    return NotFound();
-                }
-            }
-            catch (Exception ex)
-            {
-                return View("Error");
-            }
-
-            return Ok();
+            
+            return await SafeDeleteImage(product.PreviewImage);
         }
 
         [HttpGet]
         public IActionResult LoadMore(string cursor)
         {
             var products = db.Products
-                             .OrderBy(p => p.Name.ToLower())
+                             .OrderBy(p => p.Id)
                              .Where(p => string.Compare(p.Id, cursor) > 0)
                              .Take(6)
                              .ToList();
@@ -130,39 +105,18 @@ namespace htmx_prototype.Controllers
             if (editImage == null) return View("Error");
             var product = db.Products.FirstOrDefault(p => p.Id == Id);
             if (product == null) return View("Error");
-            try
-            {
-                if (System.IO.File.Exists(environment.WebRootPath + product.PreviewImage))
-                {
-                    System.IO.File.Delete(environment.WebRootPath + product.PreviewImage);
-                }
-                else
-                {
-                    return NotFound();
-                }
-            }
-            catch (Exception ex)
-            {
-                return View("Error");
-            }
-            string productImageName = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(editImage.FileName);
 
-            var filePath = Path.Combine(environment.WebRootPath, "Images", productImageName);
+            var result = await SafeDeleteImage(product.PreviewImage);
+            if (result.GetType() != typeof(OkResult)) return result;
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await editImage.CopyToAsync(stream);
-            }
-
-            product.PreviewImage = "./Images/" + productImageName;
+            product.PreviewImage = await SaveImage(editImage);
             db.Products.Update(product);
             db.SaveChanges();
-
 
             string content = "\r\n    <img class=\"image\" src=\"" + product.PreviewImage + "\" alt=\"" + product.Name + "\" />";
             return Ok();
         }
-
+        
         [HttpPost]
         public async Task<IActionResult> EditDescription(string Id, string editDescription)
         {
@@ -184,11 +138,9 @@ namespace htmx_prototype.Controllers
         }
 
         [HttpGet]
-        public IActionResult CloseModal()
+        public async Task<IActionResult> CloseModal()
         {
-            var products = db.Products.OrderBy(p => p.Name.ToLower()).Take(6).ToList();
-            bool hasMore = db.Products.Count() > products.Count;
-            var model = new LoadMoreModel { Products = products, HasMore = hasMore };
+            var model = await ProductsModel();
             return View("_Products", model);
         }
 
@@ -198,6 +150,44 @@ namespace htmx_prototype.Controllers
             var product = db.Products.FirstOrDefault(p => p.Id == Id);
             if (product == null) return View("Error");
             return View("Details", product);
+        }
+
+        private async Task<string> SaveImage(IFormFile image)
+        {
+            string productImageName = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(image.FileName);
+            var filePath = Path.Combine(environment.WebRootPath, "Images", productImageName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await image.CopyToAsync(stream);
+            }
+            return "./Images/" + productImageName;
+        }
+
+        private async Task<LoadMoreModel> ProductsModel()
+        {
+            var products = db.Products.OrderBy(p => p.Id).Take(6).ToList();
+            bool hasMore = db.Products.Count() > products.Count;
+            return new LoadMoreModel { Products = products, HasMore = hasMore };
+        }
+        private async Task<IActionResult> SafeDeleteImage(string name)
+        {
+            try
+            {
+                if (System.IO.File.Exists(environment.WebRootPath + name))
+                {
+                    System.IO.File.Delete(environment.WebRootPath + name);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                return View("Error");
+            }
+            return Ok();
         }
     }
 }
