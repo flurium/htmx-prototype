@@ -26,11 +26,61 @@
 
 
 <script>
+    document.getElementById('productAdd').addEventListener('submit', function (event) {
+        var fileInput = document.getElementById('productImage');
+        var file = fileInput.files[0];
+        console.log(file);
+
+        if (!file) {
+            message.textContent = 'Please select a file.';
+            event.preventDefault();
+            return;
+        }
+
+        var maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            message.textContent = 'File size must be less than 5MB.';
+            event.preventDefault();
+        }
+       
+    });
+    document.getElementById('productAdd').addEventListener('htmx:afterRequest', function (evt) {
+        var form = document.getElementById('productAdd');
+        console.log(form);
+        form.reset();
+        console.log(form)
+    });
     document.body.addEventListener('htmx:afterSwap', function (evt) {
         if (evt.detail.target.id === 'modals-here') {
             var modalElement = document.getElementById('modals-here');
             var modal = new bootstrap.Modal(modalElement);
             modal.show();
+        }
+    });
+
+    document.body.addEventListener('htmx:beforeRequest', function (evt) {
+        if (evt.detail.target.id === 'editImage') {
+            var fileInput = document.getElementById('editImage');
+            var message = document.getElementById('message');
+            var file = fileInput.files[0];
+            console.log(file);
+            message.textContent = '';
+
+            if (!file) {
+                message.textContent = 'Please select a file.';
+                console.log("htmx:abort file null");
+                htmx.trigger("editImage", "htmx:abort");
+                event.preventDefault();
+                return;
+            }
+
+            var maxSize = 5 * 1024 * 1024; // 5MB
+            if (file.size > maxSize) {
+                message.textContent = 'File size must be less than 5MB.';
+                console.log("htmx:abort size");
+                htmx.trigger("editImage", "htmx:abort");
+                event.preventDefault();
+            }
         }
     });
 </script>

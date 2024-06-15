@@ -21,11 +21,11 @@
                    class="form-control" placeholder="Enter price here" hx-swap="none" value="@Model.Price">
 
                 <label for="editImage" class="form-label">Enter an image link:</label>
-                <input required type="text" 
+                <input required type="file" hx-encoding="multipart/form-data"
                    id="editImage" name="editImage"
                    hx-post="@Url.Action("EditImage", "Home", new { Id = @Model.Id, editImage = this })"
-                   hx-trigger="keyup" hx-interval="500"
-                   class="form-control" placeholder="Enter link here" hx-swap="none" value="@Model.PreviewImage">
+                   hx-trigger="change" accept="image/png, image/jpeg"
+                   class="form-control" placeholder="Enter link here" hx-swap="none">
 
                 <label for="editDescription" class="form-label">Enter product description:</label>
                 <textarea required id="editDescription"

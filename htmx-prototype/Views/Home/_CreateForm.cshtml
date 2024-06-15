@@ -1,8 +1,6 @@
-﻿<form id="productAdd" hx-boost="true"
+﻿<form id="productAdd" hx-boost="true" hx-encoding="multipart/form-data"
               hx-post="@Url.Action("Add","Home")"
               hx-target="#productsHere"
-              hx-on:htmx:before-request="disableForm('#productAdd')"
-              hx-on:htmx:after-request="clearForm('#productAdd')"
               hx-swap="innerHTML"
               hx-trigger="submit">
 
@@ -18,8 +16,8 @@
                 <label for="productPrice" class="form-label">Enter a price:</label>
                 <input required type="number" id="productPrice" name="productPrice" class="form-control" placeholder="Enter price here">
                 
-                <label for="productImage" class="form-label">Enter an image link:</label>
-                <input required type="file" accept="image/png, image/jpeg" id="productImage" name="productImage" class="form-control" placeholder="Enter link here">
+                <label for="productImage" class="form-label">Enter an image:</label>
+                <input required type="file"  accept="image/png, image/jpeg" id="productImage" name="productImage" class="form-control" placeholder="Enter link here">
 
                 <label for="productDescription" class="form-label">Enter product description:</label>
                 <textarea required id="productDescription" name="productDescription" class="form-control" rows="5" placeholder="Enter text here"></textarea>
@@ -30,41 +28,4 @@
             </button>
 </form>
 
-@section Scripts {
-    <script>
-        function clearForm(selector) {
-            const form = document.querySelector(selector);
-            form.reset();
 
-            const submit = form.querySelector("[type='submit']")
-            submit.disabled = false;
-        }
-
-        function disableForm(selector) {
-            console.log("disable")
-            const form = document.querySelector(selector);
-            const submit = form.querySelector("[type='submit']")
-            console.log(submit)
-            submit.disabled = true;
-        }
-        document.getElementById('productAdd').addEventListener('submit', function (event) {
-            var fileInput = document.getElementById('productImage');
-            var message = document.getElementById('message');
-            var file = fileInput.files[0];
-
-            message.textContent = '';
-
-            if (!file) {
-                message.textContent = 'Please select a file.';
-                event.preventDefault();
-                return;
-            }
-
-            var maxSize = 5 * 1024 * 1024; // 5MB
-            if (file.size > maxSize) {
-                message.textContent = 'File size must be less than 5MB.';
-                event.preventDefault();
-            }
-        });
-    </script>
-}

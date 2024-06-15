@@ -1,10 +1,9 @@
-﻿using Htmx;
-using htmx_prototype.Data;
+﻿using htmx_prototype.Data;
 using htmx_prototype.Models;
 using Microsoft.AspNetCore.Mvc;
-
-using System.Diagnostics;
-using System.Linq;
+using Microsoft.Extensions.Hosting.Internal;
+using System;
+using System.IO;
 
 namespace htmx_prototype.Controllers
 {
@@ -12,33 +11,34 @@ namespace htmx_prototype.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         protected HtmxDbContext db;
-
-        public HomeController(ILogger<HomeController> logger, HtmxDbContext context)
+        protected IWebHostEnvironment environment;
+        public HomeController(ILogger<HomeController> logger, HtmxDbContext context, IWebHostEnvironment environment)
         {
             _logger = logger;
             db = context;
+            this.environment = environment;
         }
 
         public IActionResult Index()
         {
-            var products = db.Products.OrderBy(p => p.Name).Take(6).ToList();
+            var products = db.Products.OrderBy(p => p.Name.ToLower()).Take(6).ToList();
             bool hasMore = db.Products.Count() > products.Count;
             var model = new LoadMoreModel { Products = products, HasMore = hasMore };
             return View(model);
         }
 
-        public record class ProductFormModel(string productName, double productPrice, string productDescription, IFormFile productImage);
+        public record class ProductFormModel(string productName, IFormFile productImage, double productPrice, string productDescription);
 
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] ProductFormModel product)
         {
-            string productImageName = Guid.NewGuid().ToString();
+            string productImageName = Guid.NewGuid().ToString()+System.IO.Path.GetExtension(product.productImage.FileName);
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Images", productImageName);
+            var filePath = Path.Combine(environment.WebRootPath, "Images", productImageName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                await product.productImage.CopyToAsync(stream);
+              await product.productImage.CopyToAsync(stream);
             }
 
             var newProduct = new Product()
@@ -46,13 +46,13 @@ namespace htmx_prototype.Controllers
                 Name = product.productName,
                 Description = product.productDescription,
                 Price = product.productPrice,
-                PreviewImage = filePath
+                PreviewImage = "./Images/"+productImageName
             };
 
             db.Products.Add(newProduct);
             db.SaveChanges();
 
-            var products = db.Products.OrderBy(p => p.Name).Take(6).ToList();
+            var products = db.Products.OrderBy(p => p.Name.ToLower()).Take(6).ToList();
             bool hasMore = db.Products.Count() > products.Count;
             var model = new LoadMoreModel { Products = products, HasMore = hasMore };
             return View("_Products", model);
@@ -67,6 +67,21 @@ namespace htmx_prototype.Controllers
 
             db.Products.Remove(product);
             db.SaveChanges();
+            try
+            {
+                if (System.IO.File.Exists(environment.WebRootPath + product.PreviewImage))
+                {
+                    System.IO.File.Delete(environment.WebRootPath + product.PreviewImage);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                return View("Error");
+            }
 
             return Ok();
         }
@@ -75,8 +90,8 @@ namespace htmx_prototype.Controllers
         public IActionResult LoadMore(string cursor)
         {
             var products = db.Products
+                             .OrderBy(p => p.Name.ToLower())
                              .Where(p => string.Compare(p.Id, cursor) > 0)
-                             .OrderBy(p => p.Name)
                              .Take(6)
                              .ToList();
 
@@ -110,13 +125,39 @@ namespace htmx_prototype.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditImage(string Id, string editImage)
+        public async Task<IActionResult> EditImage(string Id, IFormFile editImage)
         {
+            if (editImage == null) return View("Error");
             var product = db.Products.FirstOrDefault(p => p.Id == Id);
             if (product == null) return View("Error");
-            product.PreviewImage = editImage;
+            try
+            {
+                if (System.IO.File.Exists(environment.WebRootPath + product.PreviewImage))
+                {
+                    System.IO.File.Delete(environment.WebRootPath + product.PreviewImage);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                return View("Error");
+            }
+            string productImageName = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(editImage.FileName);
+
+            var filePath = Path.Combine(environment.WebRootPath, "Images", productImageName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await editImage.CopyToAsync(stream);
+            }
+
+            product.PreviewImage = "./Images/" + productImageName;
             db.Products.Update(product);
             db.SaveChanges();
+
 
             string content = "\r\n    <img class=\"image\" src=\"" + product.PreviewImage + "\" alt=\"" + product.Name + "\" />";
             return Ok();
@@ -145,7 +186,7 @@ namespace htmx_prototype.Controllers
         [HttpGet]
         public IActionResult CloseModal()
         {
-            var products = db.Products.OrderBy(p => p.Name).Take(6).ToList();
+            var products = db.Products.OrderBy(p => p.Name.ToLower()).Take(6).ToList();
             bool hasMore = db.Products.Count() > products.Count;
             var model = new LoadMoreModel { Products = products, HasMore = hasMore };
             return View("_Products", model);
