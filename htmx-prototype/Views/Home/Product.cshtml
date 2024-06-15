@@ -14,8 +14,8 @@
     <div class="col-6">
         <button class="btn btn-danger w-100"
                 hx-delete="@Url.Action("Delete", "Home", new { Id = @Model.Id })"
-                hx-target="#productsHere"
-                hx-swap="innerHTML">
+                hx-target="closest .product-card"
+                hx-swap="outerHTML">
             Delete
         </button>
     </div>

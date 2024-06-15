@@ -21,29 +21,38 @@ namespace htmx_prototype.Controllers
 
         public IActionResult Index()
         {
-            var products = db.Products.OrderBy(p => p.Id).Take(6).ToList();
+            var products = db.Products.OrderBy(p => p.Name).Take(6).ToList();
             bool hasMore = db.Products.Count() > products.Count;
             var model = new LoadMoreModel { Products = products, HasMore = hasMore };
             return View(model);
         }
 
-        public record class ProductFormModel(string productName, double productPrice, string productDescription, string productImage);
+        public record class ProductFormModel(string productName, double productPrice, string productDescription, IFormFile productImage);
 
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] ProductFormModel product)
         {
+            string productImageName = Guid.NewGuid().ToString();
+
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Images", productImageName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await product.productImage.CopyToAsync(stream);
+            }
+
             var newProduct = new Product()
             {
                 Name = product.productName,
                 Description = product.productDescription,
                 Price = product.productPrice,
-                PreviewImage = product.productImage
+                PreviewImage = filePath
             };
 
             db.Products.Add(newProduct);
             db.SaveChanges();
 
-            var products = db.Products.OrderBy(p => p.Id).Take(6).ToList();
+            var products = db.Products.OrderBy(p => p.Name).Take(6).ToList();
             bool hasMore = db.Products.Count() > products.Count;
             var model = new LoadMoreModel { Products = products, HasMore = hasMore };
             return View("_Products", model);
@@ -56,13 +65,26 @@ namespace htmx_prototype.Controllers
 
             if (product == null) return View("Error");
 
+            try
+            {
+                if (File.Exists(product.PreviewImage))
+                {
+                    File.Delete(product.PreviewImage);
+                }
+                else
+                {
+                    return View("Error");
+                }
+            }
+            catch (Exception ex)
+            {
+                return View("Error");
+            }
+
             db.Products.Remove(product);
             db.SaveChanges();
 
-            var products = db.Products.OrderBy(p => p.Id).Take(6).ToList();
-            bool hasMore = db.Products.Count() > products.Count;
-            var model = new LoadMoreModel { Products = products, HasMore = hasMore };
-            return View("_Products", model);
+            return Ok();
         }
 
         [HttpGet]
@@ -70,7 +92,7 @@ namespace htmx_prototype.Controllers
         {
             var products = db.Products
                              .Where(p => string.Compare(p.Id, cursor) > 0)
-                             .OrderBy(p => p.Id)
+                             .OrderBy(p => p.Name)
                              .Take(6)
                              .ToList();
 
@@ -139,7 +161,7 @@ namespace htmx_prototype.Controllers
         [HttpGet]
         public IActionResult CloseModal()
         {
-            var products = db.Products.OrderBy(p => p.Id).Take(6).ToList();
+            var products = db.Products.OrderBy(p => p.Name).Take(6).ToList();
             bool hasMore = db.Products.Count() > products.Count;
             var model = new LoadMoreModel { Products = products, HasMore = hasMore };
             return View("_Products", model);

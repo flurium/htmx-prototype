@@ -24,30 +24,15 @@
      tabindex="-1">
 </div>
 
-@section Scripts {
-    <script>
-        function clearForm(selector) {
-            const form = document.querySelector(selector);
-            form.reset();
 
-            const submit = form.querySelector("[type='submit']")
-            submit.disabled = false;
+<script>
+    document.body.addEventListener('htmx:afterSwap', function (evt) {
+        if (evt.detail.target.id === 'modals-here') {
+            var modalElement = document.getElementById('modals-here');
+            var modal = new bootstrap.Modal(modalElement);
+            modal.show();
         }
+    });
+</script>
 
-        function disableForm(selector) {
-            console.log("disable")
-            const form = document.querySelector(selector);
-            const submit = form.querySelector("[type='submit']")
-            console.log(submit)
-            submit.disabled = true;
-        }
-            document.body.addEventListener('htmx:afterSwap', function (evt) {
-                if (evt.detail.target.id === 'modals-here') {
-                    var modalElement = document.getElementById('modals-here');
-                    var modal = new bootstrap.Modal(modalElement);
-                    modal.show();
-                }
-            });
-    </script>
-    <script src="https://unpkg.com/htmx.org@1.7.0"></script>
-}
+<script src="https://unpkg.com/htmx.org@1.7.0"></script>
