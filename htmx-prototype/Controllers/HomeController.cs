@@ -65,22 +65,6 @@ namespace htmx_prototype.Controllers
 
             if (product == null) return View("Error");
 
-            try
-            {
-                if (File.Exists(product.PreviewImage))
-                {
-                    File.Delete(product.PreviewImage);
-                }
-                else
-                {
-                    return View("Error");
-                }
-            }
-            catch (Exception ex)
-            {
-                return View("Error");
-            }
-
             db.Products.Remove(product);
             db.SaveChanges();
 
