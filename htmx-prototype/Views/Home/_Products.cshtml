@@ -1,10 +1,11 @@
-﻿@model htmx_prototype.Models.LoadMoreModel
+﻿@using htmx_prototype.Extensions;
+@model htmx_prototype.Models.LoadMoreModel
 @{
     Layout = null;
 }
 @foreach (var product in Model.Products)
 {
-    <div class="product-card"
+    <div class="product-card" id="product-@product.Id"
          @if (Model.HasMore && product == Model.Products.Last())
          {
              <text>
@@ -13,8 +14,7 @@
                  hx-swap="afterend"
              </text>
          }>
-
-         @await Html.PartialAsync("Product", product)
+        @await Partials.ProductPartial.Render(Html,product)
     </div>
 
 }

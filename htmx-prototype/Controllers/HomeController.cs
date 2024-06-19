@@ -1,11 +1,7 @@
 ﻿using htmx_prototype.Data;
+using htmx_prototype.Extensions;
 using htmx_prototype.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting.Internal;
-using System;
-using System.IO;
-using System.Linq;
-using System.Net;
 
 namespace htmx_prototype.Controllers
 {
@@ -28,11 +24,9 @@ namespace htmx_prototype.Controllers
         }
 
         public record class ProductFormModel(string productName, IFormFile productImage, double productPrice, string productDescription);
-
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] ProductFormModel product)
         {
-            
             var newProduct = new Product()
             {
                 Name = product.productName,
@@ -40,24 +34,19 @@ namespace htmx_prototype.Controllers
                 Price = product.productPrice,
                 PreviewImage = await SaveImage(product.productImage)
             };
-
             db.Products.Add(newProduct);
             db.SaveChanges();
-
             var model = await ProductsModel();
-            return View("_Products", model);
+            return Partials.LoadMorePartial.Result(this,model);
         }
 
         [HttpDelete]
         public async Task<IActionResult> Delete(string Id)
         {
             var product = db.Products.FirstOrDefault(s => s.Id == Id);
-
             if (product == null) return View("Error");
-
             db.Products.Remove(product);
             db.SaveChanges();
-            
             return await SafeDeleteImage(product.PreviewImage);
         }
 
@@ -69,11 +58,9 @@ namespace htmx_prototype.Controllers
                              .Where(p => string.Compare(p.Id, cursor) > 0)
                              .Take(6)
                              .ToList();
-
             var last = products.LastOrDefault();
             bool hasMore = (last != null) && db.Products.Any(p => string.Compare(p.Id, last.Id) > 0);
-
-            return PartialView("_Products", new LoadMoreModel { Products = products, HasMore = hasMore });
+            return Partials.LoadMorePartial.Result(this, new LoadMoreModel { Products = products, HasMore = hasMore });
         }
 
         [HttpPost]
@@ -84,7 +71,6 @@ namespace htmx_prototype.Controllers
             product.Name = editName;
             db.Products.Update(product);
             db.SaveChanges();
-
             return Ok();
         }
 
@@ -105,15 +91,11 @@ namespace htmx_prototype.Controllers
             if (editImage == null) return View("Error");
             var product = db.Products.FirstOrDefault(p => p.Id == Id);
             if (product == null) return View("Error");
-
             var result = await SafeDeleteImage(product.PreviewImage);
             if (result.GetType() != typeof(OkResult)) return result;
-
             product.PreviewImage = await SaveImage(editImage);
             db.Products.Update(product);
             db.SaveChanges();
-
-            string content = "\r\n    <img class=\"image\" src=\"" + product.PreviewImage + "\" alt=\"" + product.Name + "\" />";
             return Ok();
         }
         
@@ -125,7 +107,6 @@ namespace htmx_prototype.Controllers
             product.Description = editDescription;
             db.Products.Update(product);
             db.SaveChanges();
-
             return Ok();
         }
 
@@ -134,14 +115,15 @@ namespace htmx_prototype.Controllers
         {
             var product = db.Products.FirstOrDefault(p => p.Id == Id);
             if (product == null) return View("Error");
-            return PartialView("EditModal", product);
+            return Partials.EditModalPartial.Result(this, product);
         }
 
         [HttpGet]
-        public async Task<IActionResult> CloseModal()
+        public async Task<IActionResult> CloseModal(string Id)
         {
-            var model = await ProductsModel();
-            return View("_Products", model);
+            var product = db.Products.FirstOrDefault(p => p.Id == Id);
+            if (product == null) return View("Error");
+            return Partials.ProductPartial.Result(this, product);
         }
 
         [HttpGet]
@@ -149,14 +131,13 @@ namespace htmx_prototype.Controllers
         {
             var product = db.Products.FirstOrDefault(p => p.Id == Id);
             if (product == null) return View("Error");
-            return View("Details", product);
+            return Partials.DetailsPartial.Result(this, product);
         }
 
         private async Task<string> SaveImage(IFormFile image)
         {
             string productImageName = Guid.NewGuid().ToString() + System.IO.Path.GetExtension(image.FileName);
             var filePath = Path.Combine(environment.WebRootPath, "Images", productImageName);
-
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await image.CopyToAsync(stream);

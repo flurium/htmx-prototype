@@ -1,22 +1,20 @@
 ﻿@model htmx_prototype.Models.LoadMoreModel
-@using htmx_prototype.Controllers;
+@using htmx_prototype.Extensions;
 @{
     ViewData["Title"] = "Home page";
 }
-
 
  <div class="card m-5">
     <div class="card-header bg-primary text-white">
         <h2></h2>
     </div>
     <div class="card-body">
-        @await Html.PartialAsync("_CreateForm")
+        @await Partials.ProductFormPartial.Render(Html)
         <div id="productsHere" class="mt-5 row row-cols-1 row-cols-md-3 g-4 flex-fill">
-            @await Html.PartialAsync("_Products", @Model)
+            @await Partials.LoadMorePartial.Render(Html, @Model)
         </div>
     </div>
 </div>
-
 
 <div id="modals-here"
      class="modal modal-blur fade"
@@ -24,31 +22,25 @@
      tabindex="-1">
 </div>
 
-
 <script>
     document.getElementById('productAdd').addEventListener('submit', function (event) {
         var fileInput = document.getElementById('productImage');
         var file = fileInput.files[0];
         console.log(file);
-
         if (!file) {
             message.textContent = 'Please select a file.';
             event.preventDefault();
             return;
         }
-
         var maxSize = 5 * 1024 * 1024; // 5MB
         if (file.size > maxSize) {
             message.textContent = 'File size must be less than 5MB.';
             event.preventDefault();
         }
-       
     });
     document.getElementById('productAdd').addEventListener('htmx:afterRequest', function (evt) {
         var form = document.getElementById('productAdd');
-        console.log(form);
         form.reset();
-        console.log(form)
     });
     document.body.addEventListener('htmx:afterSwap', function (evt) {
         if (evt.detail.target.id === 'modals-here') {
@@ -57,15 +49,12 @@
             modal.show();
         }
     });
-
     document.body.addEventListener('htmx:beforeRequest', function (evt) {
         if (evt.detail.target.id === 'editImage') {
             var fileInput = document.getElementById('editImage');
             var message = document.getElementById('message');
             var file = fileInput.files[0];
             console.log(file);
-            message.textContent = '';
-
             if (!file) {
                 message.textContent = 'Please select a file.';
                 console.log("htmx:abort file null");
@@ -73,7 +62,6 @@
                 event.preventDefault();
                 return;
             }
-
             var maxSize = 5 * 1024 * 1024; // 5MB
             if (file.size > maxSize) {
                 message.textContent = 'File size must be less than 5MB.';
