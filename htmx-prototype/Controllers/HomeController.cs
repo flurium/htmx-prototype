@@ -133,7 +133,7 @@ namespace htmx_prototype.Controllers
         {
             var product = db.Products.FirstOrDefault(p => p.Id == Id);
             if (product == null) return View("Error");
-            return View("Details", product);
+            return View(nameof(Details), product);
         }
 
         private async Task<string> SaveImage(IFormFile image)
