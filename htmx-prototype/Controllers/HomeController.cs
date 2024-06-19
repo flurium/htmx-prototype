@@ -17,6 +17,7 @@ namespace htmx_prototype.Controllers
             this.environment = environment;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var model = await ProductsModel();
