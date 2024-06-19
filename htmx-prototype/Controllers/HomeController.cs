@@ -25,6 +25,7 @@ namespace htmx_prototype.Controllers
         }
 
         public record class ProductFormModel(string productName, IFormFile productImage, double productPrice, string productDescription);
+        
         [HttpPost]
         public async Task<IActionResult> Add([FromForm] ProductFormModel product)
         {
@@ -132,7 +133,7 @@ namespace htmx_prototype.Controllers
         {
             var product = db.Products.FirstOrDefault(p => p.Id == Id);
             if (product == null) return View("Error");
-            return Partials.DetailsPartial.Result(this, product);
+            return View("Details", product);
         }
 
         private async Task<string> SaveImage(IFormFile image)

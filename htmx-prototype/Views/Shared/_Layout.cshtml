@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/htmx_prototype.styles.css" asp-append-version="true" />
+
+
+    <script asp-append-version="true" src="~/js/htmx.min.js" defer></script>
+    <script asp-append-version="true" src="~/js/_hyperscript.min.js" defer></script>
+    <script asp-append-version="true" src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script asp-append-version="true" src="~/js/site.js" defer></script>
 </head>
 <body hx-boost="true">
     <header>
@@ -27,11 +33,6 @@
         </main>
     </div>
 
-   
-    <script src="~/js/htmx.min.js"></script>
-    <script src="~/js/_hyperscript.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

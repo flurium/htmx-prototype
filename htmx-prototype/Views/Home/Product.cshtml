@@ -1,13 +1,13 @@
 ﻿@model htmx_prototype.Models.Product
 
 <a href="@Url.Action("Details", "Home", new { Id = @Model.Id })">
-@if (!string.IsNullOrEmpty(@Model.PreviewImage))
-{
-    <img class="image" src="@Model.PreviewImage" alt="@Model.Name" />
-}
-<h3 class="name">@Model.Name</h3>
-<p class="description">@Model.Description</p>
-<p class="price">$@Model.Price</p>
+    @if (!string.IsNullOrEmpty(@Model.PreviewImage))
+    {
+        <img class="image" src="@(Model.PreviewImage.Trim('.'))" alt="@Model.Name" />
+    }
+    <h3 class="name">@Model.Name</h3>
+    <p class="description">@Model.Description</p>
+    <p class="price">$@Model.Price</p>
 </a>
 
 <div class="row">

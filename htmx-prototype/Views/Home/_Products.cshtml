@@ -1,8 +1,6 @@
 ﻿@using htmx_prototype.Extensions;
 @model htmx_prototype.Models.LoadMoreModel
-@{
-    Layout = null;
-}
+
 @foreach (var product in Model.Products)
 {
     <div class="product-card" id="product-@product.Id"
@@ -16,6 +14,5 @@
          }>
         @await Partials.ProductPartial.Render(Html,product)
     </div>
-
 }
 
